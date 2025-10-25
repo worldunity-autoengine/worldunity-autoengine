@@ -1,57 +1,33 @@
-name: 🌏 World Unity Auto Engine
+name: Auto Upload to YouTube
+
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: "0 13 * * *"  # รันทุกวัน 20:00 (GMT+7)
+    - cron: '0 2 * * *' # ทุกวันเวลา 09:00 (เวลาไทย)
   workflow_dispatch:
 
 jobs:
-  autorun:
+  upload:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
 
-      - name: Run Yaoyi AutoRun
+      - name: Upload to YouTube
         env:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        run: python yaoyi_autorun.py
-
-      - name: Run AI Optimizer
-        run: python ai_optimizer.py
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
-google-api-python-client
-pandas
-requests
-import os
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-
-def main():
-    print("🚀 Yaoyi AutoRun started")
-    # โหลด client secret จาก GitHub Secret
-    client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    if not client_secret:
-        raise Exception("❌ GOOGLE_CLIENT_SECRET not found!")
-
-    # (ตัวอย่าง) ดึงข้อมูลช่อง YouTube
-    service = build("youtube", "v3", developerKey=None)
-    print("✅ Connected to YouTube Data API (simulation mode)")
-    print("🎬 AutoRun complete")
-
-if __name__ == "__main__":
-    main()
-import time
-
-print("🔍 AI Optimizer starting...")
-time.sleep(2)
-print("✨ Optimization complete! Ready for next run.")
+        run: |
+          echo "Starting upload..."
+          python scripts/upload_youtube.py
